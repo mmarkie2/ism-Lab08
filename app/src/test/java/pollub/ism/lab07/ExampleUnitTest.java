@@ -1,4 +1,4 @@
-package pollub.ism.lab06;
+package pollub.ism.lab07;
 
 import org.junit.Test;
 

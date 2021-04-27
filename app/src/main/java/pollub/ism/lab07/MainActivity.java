@@ -1,13 +1,14 @@
-package pollub.ism.lab06;
+package pollub.ism.lab07;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import pollub.ism.lab06.databinding.ActivityMainBinding;
+import pollub.ism.lab07.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -17,8 +18,8 @@ public class MainActivity extends AppCompatActivity {
 
     public enum OperacjaMagazynowa {SKLADUJ, WYDAJ}
 
-    ;
-    MagazynBazaDanych bazaDanych;
+    private BazaMagazynowa bazaDanych;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +65,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        bazaDanych = new MagazynBazaDanych(this);
+        bazaDanych = Room.databaseBuilder(getApplicationContext(), BazaMagazynowa.class, BazaMagazynowa.NAZWA_BAZY)
+                .allowMainThreadQueries().build();
+
+        if (bazaDanych.pozycjaMagazynowaDAO().size() == 0) {
+            String[] asortyment = getResources().getStringArray(R.array.Asortyment);
+            for (String nazwa : asortyment) {
+                PozycjaMagazynowa pozycjaMagazynowa = new PozycjaMagazynowa();
+                pozycjaMagazynowa.NAME = nazwa;
+                pozycjaMagazynowa.QUANTITY = 0;
+                bazaDanych.pozycjaMagazynowaDAO().insert(pozycjaMagazynowa);
+            }
+        }
     }
 
     private void aktualizuj() {
-        wybraneWarzywoIlosc = bazaDanych.podajIlosc(wybraneWarzywoNazwa);
+        wybraneWarzywoIlosc = bazaDanych.pozycjaMagazynowaDAO().findQuantityByName(wybraneWarzywoNazwa);
         binding.tekstStanMagazynu.setText("Stan magazynu dla " + wybraneWarzywoNazwa + " wynosi: " + wybraneWarzywoIlosc);
     }
 
@@ -93,9 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        bazaDanych.zmienStanMagazynu(wybraneWarzywoNazwa, nowaIlosc);
+        bazaDanych.pozycjaMagazynowaDAO().updateQuantityByName(wybraneWarzywoNazwa, nowaIlosc);
 
         aktualizuj();
-
     }
 }
