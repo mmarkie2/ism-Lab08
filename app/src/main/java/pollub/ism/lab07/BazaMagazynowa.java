@@ -2,8 +2,10 @@ package pollub.ism.lab07;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 @Database(entities = {PozycjaMagazynowa.class}, version = BazaMagazynowa.WERSJA, exportSchema = false)
+@TypeConverters({Converter.class})
 public abstract class BazaMagazynowa extends RoomDatabase {
 
     public static final String NAZWA_BAZY = "Stoisko z warzywami";
